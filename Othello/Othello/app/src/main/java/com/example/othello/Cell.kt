@@ -5,8 +5,8 @@ import java.util.*
 
 class Cell {
     private var color = Color.RED
-    public var active = false // is shaded or filled
-    public var isfilled = false
+    var active = false // is shaded or filled
+    var isfilled = false
 
     lateinit var leftCell: Cell
     lateinit var rightCell: Cell
@@ -18,18 +18,18 @@ class Cell {
     lateinit var bottomRightCell: Cell
     lateinit var bottomLeftCell: Cell
 
-    public fun setColor(c: Int) {
+    fun setColor(c: Int) {
         color = c
         active = true
     }
 
-    public fun getColor(): Int {
+    fun getColor(): Int {
         return color
     }
 
-    /* Highlights the cells that can be selected based on a corresponding cell */
+    // highlights the cells that are legal moves
     public fun highlightCells(list: LinkedList<Cell>) {
-        // check adjacent cells
+
         checkLeft(list)
         checkRight(list)
         checkUp(list)
@@ -98,12 +98,12 @@ class Cell {
         }
     }
 
-    // check highlighted cell and capture cells that are adjacent
-    // remove those cells from ---list and put in other list
+
     fun captureCells( turnColor: Int, blackCells: LinkedList<Cell>, whiteCells: LinkedList<Cell>) {
         // setup linked list for removing and inserting
         var outList: LinkedList<Cell>
         var inList: LinkedList<Cell>
+
         if(turnColor == Color.BLACK){
             outList = whiteCells
             inList = blackCells

@@ -1,5 +1,10 @@
 package com.example.othello
 
+/*
+ *  Othello Custom View.
+ *  Author: Muniker Aragon
+ */
+
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -21,9 +26,13 @@ class OthelloView : View {
     override fun onDraw(canvas: Canvas) {
         // call the super method to keep any drawing from the parent side.
         super.onDraw(canvas)
+
         drawGrid(canvas)
         fillGrid(canvas)
+        drawScore(canvas)
+        drawResetButton(canvas)
     }
+
 
     private fun drawGrid(canvas: Canvas) {
         // draw square background
@@ -56,8 +65,7 @@ class OthelloView : View {
 
         for(i in 1..8){
             for(d in 1..8){
-                var iscellActive = game.isActive(i-1, d-1)
-                if(iscellActive){
+                if(game.isActive(i-1, d-1)){ // if Cell is active
                     paint.color = game.getColor(i-1, d-1)
                     canvas.drawCircle(size * 0.125f*d - (size*0.125f/2),size*0.125f*i - (size*0.125f/2), size*0.125f/3,paint)
                 }
@@ -65,9 +73,56 @@ class OthelloView : View {
         }
     }
 
+    private fun drawScore(canvas: Canvas){
+        // background boxes
+        paint.color = Color.LTGRAY
+        paint.style = Paint.Style.FILL
+        paint.strokeWidth = 0.5f
+        canvas.drawRect(size*0.05f, size*1.12f, size*0.35f,size*1.23f, paint )
+        canvas.drawRect(size*0.65f, size*1.12f, size*0.95f,size*1.23f, paint )
+
+        // text for left box
+        paint.color = Color.WHITE
+        paint.strokeWidth = 0.5f
+        var score1 = game.whiteCells.size
+        canvas.drawText("Score: $score1",size/5f, size*1.2f, paint)
+
+        // text for right box
+        paint.color = Color.BLACK
+        paint.strokeWidth = 0.5f
+        var score2 = game.blackCells.size
+        canvas.drawText("Score: $score2",size/1.25f, size*1.2f, paint)
+    }
+
+    private fun drawResetButton(canvas: Canvas){
+        // background box
+        paint.color = Color.LTGRAY
+        paint.style = Paint.Style.FILL
+        paint.strokeWidth = 0.5f
+        canvas.drawRect(size*0.35f, size*1.30f, size*0.65f,size*1.44f, paint )
+
+        // text for box
+        paint.color = Color.RED
+        canvas.drawText("RESET",size/2f, size*1.4f, paint)
+    }
+
+    private fun toReset(x: Float, y: Float): Boolean {
+        var inWidth = x>0.35f && x<0.65f
+        var inHeight = y>1.30f && y<1.44f
+        if(inWidth && inHeight){ // is the click within limits
+            return true
+        }
+        return false
+    }
+
     private fun handleTouch(x: Float, y: Float){
         var row: Int
         var col: Int
+
+        if(toReset(x, y)){ // if RESET was clicked
+            game.reset()
+            postInvalidate() // redraw view
+        }
 
         // find selected column
         when{
@@ -92,17 +147,15 @@ class OthelloView : View {
             else -> row = 7
         }
 
-        //game.update(row, col)
+        game.update(row, col, context)
         postInvalidate() // redraw view
     }
 
-  /*  override fun onTouchEvent(event: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         val action: Int = MotionEventCompat.getActionMasked(event)
         return when (action) {
             MotionEvent.ACTION_DOWN -> {
                 println("Action was DOWN")
-                println("touched X: "+ event.getX())
-                println("touched Y: "+ event.getY())
                 handleTouch(event.getX()/size, event.getY()/size)
                 true
             }
@@ -125,11 +178,12 @@ class OthelloView : View {
             else -> super.onTouchEvent(event)
         }
     }
-*/
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         size = Math.min(measuredWidth, measuredHeight)
         setMeasuredDimension(size, size)
 
     }
+
 }
